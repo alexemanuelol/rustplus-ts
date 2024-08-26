@@ -1,0 +1,48 @@
+{
+    "name": "rustplus-ts",
+    "version": "1.0.0",
+    "description": "API Wrapper for Rust+",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "private": false,
+    "scripts": {
+        "build": "tsc",
+        "start": "ts-node src/rustplus.ts",
+        "test": "ts-node src/test/test.ts",
+        "regression": "ts-node src/test/regression.ts",
+        "protogen": "protoc --ts_out src/interfaces --ts_opt long_type_string --proto_path src/protos src/protos/rustplus.proto"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/alexemanuelol/rustplus-ts.git"
+    },
+    "author": "Alexander Emanuelsson",
+    "license": "SEE LICENSE IN LICENSE",
+    "bugs": {
+        "url": "https://github.com/alexemanuelol/rustplus-ts/issues"
+    },
+    "homepage": "https://github.com/alexemanuelol/rustplus-ts#readme",
+    "keywords": [
+        "rust",
+        "rust+",
+        "rustplus",
+        "rustplus-api",
+        "companion",
+        "api",
+        "websocket",
+        "smart switch",
+        "smart alarm",
+        "storage monitor",
+        "commands",
+        "team chat"
+    ],
+    "dependencies": {
+        "@types/ws": "^8.5.10",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.4.3",
+        "ws": "^8.16.0"
+    },
+    "devDependencies": {
+        "@protobuf-ts/plugin": "^2.9.4"
+    }
+}
