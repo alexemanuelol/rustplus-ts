@@ -9,7 +9,6 @@
         "build": "tsc",
         "start": "ts-node src/rustplus.ts",
         "test": "ts-node src/test/test.ts",
-        "regression": "ts-node src/test/regression.ts",
         "protogen": "protoc --ts_out src/interfaces --ts_opt long_type_string --proto_path src/protos src/protos/rustplus.proto"
     },
     "repository": {
@@ -37,12 +36,13 @@
         "team chat"
     ],
     "dependencies": {
+        "@protobuf-ts/plugin": "^2.9.4",
         "@types/ws": "^8.5.10",
         "ts-node": "^10.9.2",
         "typescript": "^5.4.3",
         "ws": "^8.16.0"
     },
     "devDependencies": {
-        "@protobuf-ts/plugin": "^2.9.4"
+        "dotenv": "^16.4.5"
     }
 }
