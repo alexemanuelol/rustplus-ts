@@ -14,18 +14,20 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-    https://github.com/alexemanuelol/rustplusProto-ts
+    https://github.com/alexemanuelol/rustplus-ts
 
 */
 
-import * as rustplusProto from './interfaces/rustplus';
-import * as rustplus from './rustplus';
+'use strict'
+
+import * as rpi from './interfaces/rustplus';
+import * as rp from './rustplus';
 
 /**
  * Validation checks for the rustplus.proto file interfaces and enums.
  */
 
-export function isValidVector2(object: any): object is rustplusProto.Vector2 {
+export function isValidVector2(object: any): object is rpi.Vector2 {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -41,7 +43,7 @@ export function isValidVector2(object: any): object is rustplusProto.Vector2 {
     return hasValidX && hasValidY && hasOnlyValidKeys;
 }
 
-export function isValidVector3(object: any): object is rustplusProto.Vector3 {
+export function isValidVector3(object: any): object is rpi.Vector3 {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -58,7 +60,7 @@ export function isValidVector3(object: any): object is rustplusProto.Vector3 {
     return hasValidX && hasValidY && hasValidZ && hasOnlyValidKeys;
 }
 
-export function isValidVector4(object: any): object is rustplusProto.Vector4 {
+export function isValidVector4(object: any): object is rpi.Vector4 {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -76,7 +78,7 @@ export function isValidVector4(object: any): object is rustplusProto.Vector4 {
     return hasValidX && hasValidY && hasValidZ && hasValidW && hasOnlyValidKeys;
 }
 
-export function isValidHalf3(object: any): object is rustplusProto.Half3 {
+export function isValidHalf3(object: any): object is rpi.Half3 {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -93,7 +95,7 @@ export function isValidHalf3(object: any): object is rustplusProto.Half3 {
     return hasValidX && hasValidY && hasValidZ && hasOnlyValidKeys;
 }
 
-export function isValidColor(object: any): object is rustplusProto.Color {
+export function isValidColor(object: any): object is rpi.Color {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -111,7 +113,7 @@ export function isValidColor(object: any): object is rustplusProto.Color {
     return hasValidR && hasValidG && hasValidB && hasValidA && hasOnlyValidKeys;
 }
 
-export function isValidRay(object: any): object is rustplusProto.Ray {
+export function isValidRay(object: any): object is rpi.Ray {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -127,7 +129,7 @@ export function isValidRay(object: any): object is rustplusProto.Ray {
     return hasValidOrigin && hasValidDirection && hasOnlyValidKeys;
 }
 
-export function isValidClanActionResult(object: any): object is rustplusProto.ClanActionResult {
+export function isValidClanActionResult(object: any): object is rpi.ClanActionResult {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -145,7 +147,7 @@ export function isValidClanActionResult(object: any): object is rustplusProto.Cl
     return hasValidRequestId && hasValidResult && hasValidHasClanInfo && hasValidClanInfo && hasOnlyValidKeys;
 }
 
-export function isValidClanInfo(object: any): object is rustplusProto.ClanInfo {
+export function isValidClanInfo(object: any): object is rpi.ClanInfo {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -176,7 +178,7 @@ export function isValidClanInfo(object: any): object is rustplusProto.ClanInfo {
         hasValidMembers && hasValidInvites && hasValidMaxMemberCount && hasValidScore && hasOnlyValidKeys;
 }
 
-export function isValidClanInfo_Role(object: any): object is rustplusProto.ClanInfo_Role {
+export function isValidClanInfo_Role(object: any): object is rpi.ClanInfo_Role {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -205,7 +207,7 @@ export function isValidClanInfo_Role(object: any): object is rustplusProto.ClanI
         hasValidCanAccessLogs && hasValidCanAccessScoreEvents && hasOnlyValidKeys;
 }
 
-export function isValidClanInfo_Member(object: any): object is rustplusProto.ClanInfo_Member {
+export function isValidClanInfo_Member(object: any): object is rpi.ClanInfo_Member {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -226,7 +228,7 @@ export function isValidClanInfo_Member(object: any): object is rustplusProto.Cla
         hasValidOnline && hasOnlyValidKeys;
 }
 
-export function isValidClanInfo_Invite(object: any): object is rustplusProto.ClanInfo_Invite {
+export function isValidClanInfo_Invite(object: any): object is rpi.ClanInfo_Invite {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -243,7 +245,7 @@ export function isValidClanInfo_Invite(object: any): object is rustplusProto.Cla
     return hasValidSteamId && hasValidRecruiter && hasValidTimestamp && hasOnlyValidKeys;
 }
 
-export function isValidClanLog(object: any): object is rustplusProto.ClanLog {
+export function isValidClanLog(object: any): object is rpi.ClanLog {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -259,7 +261,7 @@ export function isValidClanLog(object: any): object is rustplusProto.ClanLog {
     return hasValidClanId && hasValidLogEntries && hasOnlyValidKeys;
 }
 
-export function isValidClanLog_Entry(object: any): object is rustplusProto.ClanLog_Entry {
+export function isValidClanLog_Entry(object: any): object is rpi.ClanLog_Entry {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -280,7 +282,7 @@ export function isValidClanLog_Entry(object: any): object is rustplusProto.ClanL
         hasOnlyValidKeys;
 }
 
-export function isValidClanInvitations(object: any): object is rustplusProto.ClanInvitations {
+export function isValidClanInvitations(object: any): object is rpi.ClanInvitations {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -296,7 +298,7 @@ export function isValidClanInvitations(object: any): object is rustplusProto.Cla
     return hasValidInvitations && hasOnlyValidKeys;
 }
 
-export function isValidClanInvitations_Invitation(object: any): object is rustplusProto.ClanInvitations_Invitation {
+export function isValidClanInvitations_Invitation(object: any): object is rpi.ClanInvitations_Invitation {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -313,7 +315,7 @@ export function isValidClanInvitations_Invitation(object: any): object is rustpl
     return hasValidClanId && hasValidRecruiter && hasValidTimestamp && hasOnlyValidKeys;
 }
 
-export function isValidAppRequest(object: any): object is rustplusProto.AppRequest {
+export function isValidAppRequest(object: any): object is rpi.AppRequest {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -366,7 +368,7 @@ export function isValidAppRequest(object: any): object is rustplusProto.AppReque
         hasValidCameraUnsubscribe && hasValidCameraInput && hasOnlyValidKeys;
 }
 
-export function isValidAppMessage(object: any): object is rustplusProto.AppMessage {
+export function isValidAppMessage(object: any): object is rpi.AppMessage {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -382,7 +384,7 @@ export function isValidAppMessage(object: any): object is rustplusProto.AppMessa
     return hasValidResponse && hasValidBroadcast && hasOnlyValidKeys;
 }
 
-export function isValidAppResponse(object: any): object is rustplusProto.AppResponse {
+export function isValidAppResponse(object: any): object is rpi.AppResponse {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -415,7 +417,7 @@ export function isValidAppResponse(object: any): object is rustplusProto.AppResp
         hasValidClanInfo && hasValidClanChat && hasValidNexusAuth && hasValidCameraSubscribeInfo && hasOnlyValidKeys;
 }
 
-export function isValidAppBroadcast(object: any): object is rustplusProto.AppBroadcast {
+export function isValidAppBroadcast(object: any): object is rpi.AppBroadcast {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -436,7 +438,7 @@ export function isValidAppBroadcast(object: any): object is rustplusProto.AppBro
         hasValidClanMessage && hasValidCameraRays && hasOnlyValidKeys;
 }
 
-export function isValidAppEmpty(object: any): object is rustplusProto.AppEmpty {
+export function isValidAppEmpty(object: any): object is rpi.AppEmpty {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -446,7 +448,7 @@ export function isValidAppEmpty(object: any): object is rustplusProto.AppEmpty {
     return hasOnlyValidKeys;
 }
 
-export function isValidAppSendMessage(object: any): object is rustplusProto.AppSendMessage {
+export function isValidAppSendMessage(object: any): object is rpi.AppSendMessage {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -461,7 +463,7 @@ export function isValidAppSendMessage(object: any): object is rustplusProto.AppS
     return hasValidMessage && hasOnlyValidKeys;
 }
 
-export function isValidAppSetEntityValue(object: any): object is rustplusProto.AppSetEntityValue {
+export function isValidAppSetEntityValue(object: any): object is rpi.AppSetEntityValue {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -476,7 +478,7 @@ export function isValidAppSetEntityValue(object: any): object is rustplusProto.A
     return hasValidValue && hasOnlyValidKeys;
 }
 
-export function isValidAppPromoteToLeader(object: any): object is rustplusProto.AppPromoteToLeader {
+export function isValidAppPromoteToLeader(object: any): object is rpi.AppPromoteToLeader {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -491,7 +493,7 @@ export function isValidAppPromoteToLeader(object: any): object is rustplusProto.
     return hasValidSteamId && hasOnlyValidKeys;
 }
 
-export function isValidAppGetNexusAuth(object: any): object is rustplusProto.AppGetNexusAuth {
+export function isValidAppGetNexusAuth(object: any): object is rpi.AppGetNexusAuth {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -506,7 +508,7 @@ export function isValidAppGetNexusAuth(object: any): object is rustplusProto.App
     return hasValidAppKey && hasOnlyValidKeys;
 }
 
-export function isValidAppSuccess(object: any): object is rustplusProto.AppSuccess {
+export function isValidAppSuccess(object: any): object is rpi.AppSuccess {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -516,7 +518,7 @@ export function isValidAppSuccess(object: any): object is rustplusProto.AppSucce
     return hasOnlyValidKeys;
 }
 
-export function isValidAppError(object: any): object is rustplusProto.AppError {
+export function isValidAppError(object: any): object is rpi.AppError {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -531,7 +533,7 @@ export function isValidAppError(object: any): object is rustplusProto.AppError {
     return hasValidError && hasOnlyValidKeys;
 }
 
-export function isValidAppFlag(object: any): object is rustplusProto.AppFlag {
+export function isValidAppFlag(object: any): object is rpi.AppFlag {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -546,7 +548,7 @@ export function isValidAppFlag(object: any): object is rustplusProto.AppFlag {
     return hasValidValue && hasOnlyValidKeys;
 }
 
-export function isValidAppInfo(object: any): object is rustplusProto.AppInfo {
+export function isValidAppInfo(object: any): object is rpi.AppInfo {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -580,7 +582,7 @@ export function isValidAppInfo(object: any): object is rustplusProto.AppInfo {
         hasOnlyValidKeys;
 }
 
-export function isValidAppTime(object: any): object is rustplusProto.AppTime {
+export function isValidAppTime(object: any): object is rpi.AppTime {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -600,7 +602,7 @@ export function isValidAppTime(object: any): object is rustplusProto.AppTime {
         hasOnlyValidKeys;
 }
 
-export function isValidAppMap(object: any): object is rustplusProto.AppMap {
+export function isValidAppMap(object: any): object is rpi.AppMap {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -622,7 +624,7 @@ export function isValidAppMap(object: any): object is rustplusProto.AppMap {
         hasValidBackground && hasOnlyValidKeys;
 }
 
-export function isValidAppMap_Monument(object: any): object is rustplusProto.AppMap_Monument {
+export function isValidAppMap_Monument(object: any): object is rpi.AppMap_Monument {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -639,7 +641,7 @@ export function isValidAppMap_Monument(object: any): object is rustplusProto.App
     return hasValidToken && hasValidX && hasValidY && hasOnlyValidKeys;
 }
 
-export function isValidAppEntityInfo(object: any): object is rustplusProto.AppEntityInfo {
+export function isValidAppEntityInfo(object: any): object is rpi.AppEntityInfo {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -655,7 +657,7 @@ export function isValidAppEntityInfo(object: any): object is rustplusProto.AppEn
     return hasValidType && hasValidPayload && hasOnlyValidKeys;
 }
 
-export function isValidAppEntityPayload(object: any): object is rustplusProto.AppEntityPayload {
+export function isValidAppEntityPayload(object: any): object is rpi.AppEntityPayload {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -675,7 +677,7 @@ export function isValidAppEntityPayload(object: any): object is rustplusProto.Ap
         hasOnlyValidKeys;
 }
 
-export function isValidAppEntityPayload_Item(object: any): object is rustplusProto.AppEntityPayload_Item {
+export function isValidAppEntityPayload_Item(object: any): object is rpi.AppEntityPayload_Item {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -692,7 +694,7 @@ export function isValidAppEntityPayload_Item(object: any): object is rustplusPro
     return hasValidItemId && hasValidQuantity && hasValidItemIsBlueprint && hasOnlyValidKeys;
 }
 
-export function isValidAppTeamInfo(object: any): object is rustplusProto.AppTeamInfo {
+export function isValidAppTeamInfo(object: any): object is rpi.AppTeamInfo {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -711,7 +713,7 @@ export function isValidAppTeamInfo(object: any): object is rustplusProto.AppTeam
     return hasValidLeaderSteamId && hasValidMembers && hasValidMapNotes && hasValidLeaderMapNotes && hasOnlyValidKeys;
 }
 
-export function isValidAppTeamInfo_Member(object: any): object is rustplusProto.AppTeamInfo_Member {
+export function isValidAppTeamInfo_Member(object: any): object is rpi.AppTeamInfo_Member {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -734,7 +736,7 @@ export function isValidAppTeamInfo_Member(object: any): object is rustplusProto.
         hasValidIsAlive && hasValidDeathTime && hasOnlyValidKeys;
 }
 
-export function isValidAppTeamInfo_Note(object: any): object is rustplusProto.AppTeamInfo_Note {
+export function isValidAppTeamInfo_Note(object: any): object is rpi.AppTeamInfo_Note {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -755,7 +757,7 @@ export function isValidAppTeamInfo_Note(object: any): object is rustplusProto.Ap
         hasOnlyValidKeys;
 }
 
-export function isValidAppTeamMessage(object: any): object is rustplusProto.AppTeamMessage {
+export function isValidAppTeamMessage(object: any): object is rpi.AppTeamMessage {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -774,7 +776,7 @@ export function isValidAppTeamMessage(object: any): object is rustplusProto.AppT
     return hasValidSteamId && hasValidName && hasValidMessage && hasValidColor && hasValidTime && hasOnlyValidKeys;
 }
 
-export function isValidAppTeamChat(object: any): object is rustplusProto.AppTeamChat {
+export function isValidAppTeamChat(object: any): object is rpi.AppTeamChat {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -789,7 +791,7 @@ export function isValidAppTeamChat(object: any): object is rustplusProto.AppTeam
     return hasValidMessages && hasOnlyValidKeys;
 }
 
-export function isValidAppMarker(object: any): object is rustplusProto.AppMarker {
+export function isValidAppMarker(object: any): object is rpi.AppMarker {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -819,7 +821,7 @@ export function isValidAppMarker(object: any): object is rustplusProto.AppMarker
         hasValidSellOrders && hasOnlyValidKeys;
 }
 
-export function isValidAppMarker_SellOrder(object: any): object is rustplusProto.AppMarker_SellOrder {
+export function isValidAppMarker_SellOrder(object: any): object is rpi.AppMarker_SellOrder {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -846,7 +848,7 @@ export function isValidAppMarker_SellOrder(object: any): object is rustplusProto
         hasValidPriceMultiplier && hasOnlyValidKeys;
 }
 
-export function isValidAppMapMarkers(object: any): object is rustplusProto.AppMapMarkers {
+export function isValidAppMapMarkers(object: any): object is rpi.AppMapMarkers {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -861,7 +863,7 @@ export function isValidAppMapMarkers(object: any): object is rustplusProto.AppMa
     return hasValidMarkers && hasOnlyValidKeys;
 }
 
-export function isValidAppClanInfo(object: any): object is rustplusProto.AppClanInfo {
+export function isValidAppClanInfo(object: any): object is rpi.AppClanInfo {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -876,7 +878,7 @@ export function isValidAppClanInfo(object: any): object is rustplusProto.AppClan
     return hasValidClanInfo && hasOnlyValidKeys;
 }
 
-export function isValidAppClanMessage(object: any): object is rustplusProto.AppClanMessage {
+export function isValidAppClanMessage(object: any): object is rpi.AppClanMessage {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -894,7 +896,7 @@ export function isValidAppClanMessage(object: any): object is rustplusProto.AppC
     return hasValidSteamId && hasValidName && hasValidMessage && hasValidTime && hasOnlyValidKeys;
 }
 
-export function isValidAppClanChat(object: any): object is rustplusProto.AppClanChat {
+export function isValidAppClanChat(object: any): object is rpi.AppClanChat {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -909,7 +911,7 @@ export function isValidAppClanChat(object: any): object is rustplusProto.AppClan
     return hasValidMessages && hasOnlyValidKeys;
 }
 
-export function isValidAppNexusAuth(object: any): object is rustplusProto.AppNexusAuth {
+export function isValidAppNexusAuth(object: any): object is rpi.AppNexusAuth {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -925,7 +927,7 @@ export function isValidAppNexusAuth(object: any): object is rustplusProto.AppNex
     return hasValidServerId && hasValidPlayerToken && hasOnlyValidKeys;
 }
 
-export function isValidAppTeamChanged(object: any): object is rustplusProto.AppTeamChanged {
+export function isValidAppTeamChanged(object: any): object is rpi.AppTeamChanged {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -941,7 +943,7 @@ export function isValidAppTeamChanged(object: any): object is rustplusProto.AppT
     return hasValidPlayerId && hasValidTeamInfo && hasOnlyValidKeys;
 }
 
-export function isValidAppNewTeamMessage(object: any): object is rustplusProto.AppNewTeamMessage {
+export function isValidAppNewTeamMessage(object: any): object is rpi.AppNewTeamMessage {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -956,7 +958,7 @@ export function isValidAppNewTeamMessage(object: any): object is rustplusProto.A
     return hasValidMessage && hasOnlyValidKeys;
 }
 
-export function isValidAppEntityChanged(object: any): object is rustplusProto.AppEntityChanged {
+export function isValidAppEntityChanged(object: any): object is rpi.AppEntityChanged {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -972,7 +974,7 @@ export function isValidAppEntityChanged(object: any): object is rustplusProto.Ap
     return hasValidEntityId && hasValidPayload && hasOnlyValidKeys;
 }
 
-export function isValidAppClanChanged(object: any): object is rustplusProto.AppClanChanged {
+export function isValidAppClanChanged(object: any): object is rpi.AppClanChanged {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -987,7 +989,7 @@ export function isValidAppClanChanged(object: any): object is rustplusProto.AppC
     return hasValidClanInfo && hasOnlyValidKeys;
 }
 
-export function isValidAppNewClanMessage(object: any): object is rustplusProto.AppNewClanMessage {
+export function isValidAppNewClanMessage(object: any): object is rpi.AppNewClanMessage {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -1003,7 +1005,7 @@ export function isValidAppNewClanMessage(object: any): object is rustplusProto.A
     return hasValidClanId && hasValidMessage && hasOnlyValidKeys;
 }
 
-export function isValidAppCameraSubscribe(object: any): object is rustplusProto.AppCameraSubscribe {
+export function isValidAppCameraSubscribe(object: any): object is rpi.AppCameraSubscribe {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -1018,7 +1020,7 @@ export function isValidAppCameraSubscribe(object: any): object is rustplusProto.
     return hasValidCameraId && hasOnlyValidKeys;
 }
 
-export function isValidAppCameraInput(object: any): object is rustplusProto.AppCameraInput {
+export function isValidAppCameraInput(object: any): object is rpi.AppCameraInput {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -1034,7 +1036,7 @@ export function isValidAppCameraInput(object: any): object is rustplusProto.AppC
     return hasValidButtons && hasValidMouseDelta && hasOnlyValidKeys;
 }
 
-export function isValidAppCameraInfo(object: any): object is rustplusProto.AppCameraInfo {
+export function isValidAppCameraInfo(object: any): object is rpi.AppCameraInfo {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -1054,7 +1056,7 @@ export function isValidAppCameraInfo(object: any): object is rustplusProto.AppCa
         hasOnlyValidKeys;
 }
 
-export function isValidAppCameraRays(object: any): object is rustplusProto.AppCameraRays {
+export function isValidAppCameraRays(object: any): object is rpi.AppCameraRays {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -1075,7 +1077,7 @@ export function isValidAppCameraRays(object: any): object is rustplusProto.AppCa
         hasValidTimeOfDay && hasOnlyValidKeys;
 }
 
-export function isValidAppCameraRays_Entity(object: any): object is rustplusProto.AppCameraRays_Entity {
+export function isValidAppCameraRays_Entity(object: any): object is rpi.AppCameraRays_Entity {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -1096,27 +1098,27 @@ export function isValidAppCameraRays_Entity(object: any): object is rustplusProt
         hasOnlyValidKeys;
 }
 
-export function isValidAppEntityType(value: any): value is rustplusProto.AppEntityType {
-    return Object.values(rustplusProto.AppEntityType).includes(value);
+export function isValidAppEntityType(value: any): value is rpi.AppEntityType {
+    return Object.values(rpi.AppEntityType).includes(value);
 }
 
-export function isValidAppMarkerType(value: any): value is rustplusProto.AppMarkerType {
-    return Object.values(rustplusProto.AppMarkerType).includes(value);
+export function isValidAppMarkerType(value: any): value is rpi.AppMarkerType {
+    return Object.values(rpi.AppMarkerType).includes(value);
 }
 
-export function isValidAppTeamInfo_Note_Type(value: any): value is rustplusProto.AppTeamInfo_Note_Type {
-    return Object.values(rustplusProto.AppTeamInfo_Note_Type).includes(value);
+export function isValidAppTeamInfo_Note_Type(value: any): value is rpi.AppTeamInfo_Note_Type {
+    return Object.values(rpi.AppTeamInfo_Note_Type).includes(value);
 }
 
-export function isValidAppCameraRays_EntityType(value: any): value is rustplusProto.AppCameraRays_EntityType {
-    return Object.values(rustplusProto.AppCameraRays_EntityType).includes(value);
+export function isValidAppCameraRays_EntityType(value: any): value is rpi.AppCameraRays_EntityType {
+    return Object.values(rpi.AppCameraRays_EntityType).includes(value);
 }
 
 /**
  * Validation checks for other interfaces and enums.
  */
 
-export function isValidRustPlusRequestTokens(object: any): object is rustplus.RustPlusRequestTokens {
+export function isValidRustPlusRequestTokens(object: any): object is rp.RustPlusRequestTokens {
     if (typeof object !== 'object' || object === null) {
         return false;
     }
@@ -1134,14 +1136,14 @@ export function isValidRustPlusRequestTokens(object: any): object is rustplus.Ru
     return hasValidConnection && hasValidPlayerId && hasValidServerPairing && hasOnlyValidKeys;
 }
 
-export function isValidEmitErrorType(value: any): value is rustplus.EmitErrorType {
-    return Object.values(rustplus.EmitErrorType).includes(value);
+export function isValidEmitErrorType(value: any): value is rp.EmitErrorType {
+    return Object.values(rp.EmitErrorType).includes(value);
 }
 
-export function isValidAppResponseError(value: any): value is rustplus.AppResponseError {
-    return Object.values(rustplus.AppResponseError).includes(value);
+export function isValidAppResponseError(value: any): value is rp.AppResponseError {
+    return Object.values(rp.AppResponseError).includes(value);
 }
 
-export function isValidConsumeTokensError(value: any): value is rustplus.ConsumeTokensError {
-    return Object.values(rustplus.ConsumeTokensError).includes(value);
+export function isValidConsumeTokensError(value: any): value is rp.ConsumeTokensError {
+    return Object.values(rp.ConsumeTokensError).includes(value);
 }

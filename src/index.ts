@@ -21,3 +21,4 @@
 export * from './interfaces/rustplus';
 export * from './validation';
 export * from './rustplus';
+export * from './camera';

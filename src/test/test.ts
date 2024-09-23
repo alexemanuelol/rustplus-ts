@@ -18,8 +18,12 @@
 
 */
 
-import * as rustplus from '../index';
+'use strict'
+
+import * as fs from 'fs';
 import * as dotenv from 'dotenv';
+
+import * as rustplus from '../index';
 
 dotenv.config();
 
@@ -44,6 +48,11 @@ const storageMonitor0 = parseInt(process.env.STORAGE_MONITOR_0 as string, 10); /
 const storageMonitor1 = parseInt(process.env.STORAGE_MONITOR_1 as string, 10); // Vending Machine
 const storageMonitor2 = parseInt(process.env.STORAGE_MONITOR_2 as string, 10); // Large Wood Box
 
+const camera1 = process.env.CAM1 as string; // Regular camera
+const camera2 = process.env.CAM2 as string; // PTZ camera
+const drone1 = process.env.DRONE1 as string;
+const turret1 = process.env.TURRET1 as string;
+
 let printMessage = true;
 let printRequest = true;
 
@@ -66,6 +75,7 @@ async function run_test_functions() {
         printRequest = false;
         await test_callback_api_functions(rp);
         await test_async_api_functions(rp);
+        await test_camera_module(rp);
         printMessage = true;
         printRequest = true;
 
@@ -95,13 +105,11 @@ async function run_test_functions() {
     rp.connect()
 }
 
-
 async function test_callback_api_functions(rp: rustplus.RustPlus) {
     //rp.getInfo('76561198114074446', token, (appInfo: rustplus.AppMessage) => {
     //    console.log(JSON.stringify(appInfo))
     //});
 }
-
 
 async function test_async_api_functions(rp: rustplus.RustPlus) {
     let response: rustplus.AppResponse | Error | rustplus.ConsumeTokensError;
@@ -214,6 +222,20 @@ async function test_async_api_functions(rp: rustplus.RustPlus) {
     validateAsyncResponse(rp, 'cameraInputAsync', response);
     console.log('cameraInputAsync: OK');
     await delay(500);
+}
+
+async function test_camera_module(rp: rustplus.RustPlus) {
+    const camera = new rustplus.Camera(rp);
+
+    camera.on('render', async (frame) => {
+        /* Save camera frame to disk. */
+        fs.writeFileSync(`camera.png`, frame);
+
+        await camera.unsubscribe();
+    });
+
+    await camera.subscribe(teamMember1SteamId, teamMember1Token, 'CAM2');
+    await delay(5000);
 }
 
 function validateAsyncResponse(rp: rustplus.RustPlus, funcString: string,

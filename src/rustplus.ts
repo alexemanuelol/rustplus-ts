@@ -23,7 +23,7 @@
 import WebSocket from 'ws';
 import { EventEmitter } from 'events';
 
-import * as rustplus from './interfaces/rustplus';
+import * as rpi from './interfaces/rustplus';
 import * as validation from './validation';
 
 export enum EmitErrorType {
@@ -93,12 +93,12 @@ export enum AppResponseError {
     NoMap = 9,
     /**
      * no_camera occurences:
-     * - Trying to run cameraInput when there is no camera subscribed to.???? Need to check
+     * - Trying to run cameraInput when there is no camera subscribed to.
      */
     NoCamera = 10,
     /**
      * no_player occurences:
-     * - Trying to run cameraSubscribe while player somehow is invalid.???? Need to check
+     * - Trying to run cameraSubscribe while player token is invalid or player caller dead.
      */
     NoPlayer = 11,
     /**
@@ -166,7 +166,7 @@ function getAddress(useFacepunchProxy: boolean, ip: string, port: string): strin
     return useFacepunchProxy ? `wss://companion-rust.facepunch.com/game/${ip}/${port}` : `ws://${ip}:${port}`;
 }
 
-interface CallbackFunction { (appMessage: rustplus.AppMessage): void; }
+interface CallbackFunction { (appMessage: rpi.AppMessage): void; }
 
 export class RustPlus extends EventEmitter {
 
@@ -422,7 +422,7 @@ export class RustPlus extends EventEmitter {
                 }
 
                 let handled = false;
-                const appMessage: rustplus.AppMessage = rustplus.AppMessage.fromBinary(data as any);
+                const appMessage: rpi.AppMessage = rpi.AppMessage.fromBinary(data as any);
 
                 if (appMessage.response && this.seqCallbacks[appMessage.response.seq]) {
                     const callback: CallbackFunction = this.seqCallbacks[appMessage.response.seq];
@@ -487,7 +487,7 @@ export class RustPlus extends EventEmitter {
      * before sending the request. The function also handles the sequence number for requests and stores the callback
      * for when the response arrives.
      *
-     * @param {Omit<rustplus.AppRequest, 'seq' | 'playerId' | 'playerToken'>} data - The data for the request,
+     * @param {Omit<rpi.AppRequest, 'seq' | 'playerId' | 'playerToken'>} data - The data for the request,
      *                                                                               excluding the `seq`, `playerId`,
      *                                                                               and `playerToken`, which are
      *                                                                               provided separately.
@@ -500,7 +500,7 @@ export class RustPlus extends EventEmitter {
      * @returns {Error | void} Returns an `Error` if there was an issue sending the request or formatting the data.
      *                         Returns `void` if the request is successfully sent.
      */
-    sendRequest(data: Omit<rustplus.AppRequest, 'seq' | 'playerId' | 'playerToken'>, playerId: string,
+    sendRequest(data: Omit<rpi.AppRequest, 'seq' | 'playerId' | 'playerToken'>, playerId: string,
         playerToken: number, callback: CallbackFunction, seq: number | null = null): Error | void {
         /* Is the WebSocket present? */
         if (this.ws === null || this.ws.readyState !== WebSocket.OPEN) {
@@ -515,7 +515,7 @@ export class RustPlus extends EventEmitter {
         this.seqCallbacks[seq] = callback;
 
         /* Create AppRequest object. */
-        let appRequestData: rustplus.AppRequest;
+        let appRequestData: rpi.AppRequest;
         try {
             appRequestData = {
                 seq: seq,
@@ -537,7 +537,7 @@ export class RustPlus extends EventEmitter {
         /* Convert AppRequest object to binary format. */
         let appRequest: Uint8Array;
         try {
-            appRequest = rustplus.AppRequest.toBinary(appRequestData);
+            appRequest = rpi.AppRequest.toBinary(appRequestData);
         }
         catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -564,7 +564,7 @@ export class RustPlus extends EventEmitter {
      * response is handled within the promise. If no response is received within the provided timeout, an error is
      * returned.
      *
-     * @param {Omit<rustplus.AppRequest, 'seq' | 'playerId' | 'playerToken'>} data - The data for the request,
+     * @param {Omit<rpi.AppRequest, 'seq' | 'playerId' | 'playerToken'>} data - The data for the request,
      *                                                                               excluding the `seq`, `playerId`,
      *                                                                               and `playerToken`, which are
      *                                                                               passed separately.
@@ -572,13 +572,13 @@ export class RustPlus extends EventEmitter {
      * @param {number} playerToken - The authentication token of the player making the request.
      * @param {number} [timeoutMs=10000] - The timeout in milliseconds to wait for a response before returning an error.
      *
-     * @returns {Promise<rustplus.AppResponse | Error>} A Promise that resolves to the server's response if
+     * @returns {Promise<rpi.AppResponse | Error>} A Promise that resolves to the server's response if
      *                                                  successful, or an Error if the request times out or encounters
      *                                                  an issue.
      */
-    sendRequestAsync(data: Omit<rustplus.AppRequest, 'seq' | 'playerId' | 'playerToken'>, playerId: string,
-        playerToken: number, timeoutMs: number = 10000): Promise<rustplus.AppResponse | Error> {
-        return new Promise<rustplus.AppResponse | Error>((resolve) => {
+    sendRequestAsync(data: Omit<rpi.AppRequest, 'seq' | 'playerId' | 'playerToken'>, playerId: string,
+        playerToken: number, timeoutMs: number = 10000): Promise<rpi.AppResponse | Error> {
+        return new Promise<rpi.AppResponse | Error>((resolve) => {
             const seq = this.getNextSeq();
 
             const timeout = setTimeout(() => {
@@ -586,7 +586,7 @@ export class RustPlus extends EventEmitter {
                 resolve(new Error('Timeout reached while waiting for response.'));
             }, timeoutMs);
 
-            const result = this.sendRequest(data, playerId, playerToken, (appMessage: rustplus.AppMessage) => {
+            const result = this.sendRequest(data, playerId, playerToken, (appMessage: rpi.AppMessage) => {
                 clearTimeout(timeout);
 
                 try {
@@ -598,7 +598,7 @@ export class RustPlus extends EventEmitter {
                         throw new Error('appMessage is missing response.');
                     }
 
-                    const response: rustplus.AppResponse = appMessage.response;
+                    const response: rpi.AppResponse = appMessage.response;
 
                     if (response.error) {
                         resolve(response);
@@ -626,13 +626,13 @@ export class RustPlus extends EventEmitter {
      * If the `appResponse.error` matches any known error string, the function maps it to the appropriate
      * `AppResponseError` enum. If no matching error string is found, it returns `AppResponseError.Unknown`.
      *
-     * @param {rustplus.AppResponse} appResponse - The response object from the Rust server which may contain an error.
+     * @param {rpi.AppResponse} appResponse - The response object from the Rust server which may contain an error.
      *
      * @returns {AppResponseError} The corresponding `AppResponseError` enum value based on the error string in the
      *                             `appResponse.error` object. Returns `AppResponseError.NoError` if no error is
      *                             present.
      */
-    getAppResponseError(appResponse: rustplus.AppResponse): AppResponseError {
+    getAppResponseError(appResponse: rpi.AppResponse): AppResponseError {
         if (!appResponse.error) {
             return AppResponseError.NoError;
         }
@@ -698,14 +698,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       server info (AppResponse), or an error if
      *                                                                       token consumption fails or there is an
      *                                                                       issue with the request.
      */
     async getInfoAsync(playerId: string, playerToken: number, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_GET_INFO_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_GET_INFO_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -715,7 +715,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -756,14 +756,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       server time (AppResponse), or an error if
      *                                                                       token consumption fails or there is an
      *                                                                       issue with the request.
      */
     async getTimeAsync(playerId: string, playerToken: number, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_GET_TIME_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_GET_TIME_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -773,7 +773,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -814,14 +814,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       server map (AppResponse), or an error if
      *                                                                       token consumption fails or there is an
      *                                                                       issue with the request.
      */
     async getMapAsync(playerId: string, playerToken: number, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_GET_MAP_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_GET_MAP_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -831,7 +831,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -872,14 +872,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       team info (AppResponse), or an error if
      *                                                                       token consumption fails or there is an
      *                                                                       issue with the request.
      */
     async getTeamInfoAsync(playerId: string, playerToken: number, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_GET_TEAM_INFO_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_GET_TEAM_INFO_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -889,7 +889,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -930,14 +930,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       team chat (AppResponse), or an error if
      *                                                                       token consumption fails or there is an
      *                                                                       issue with the request.
      */
     async getTeamChatAsync(playerId: string, playerToken: number, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_GET_TEAM_CHAT_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_GET_TEAM_CHAT_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -947,7 +947,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -992,14 +992,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       send team message (AppResponse), or an
      *                                                                       error if token consumption fails or there
      *                                                                       is an issue with the request.
      */
     async sendTeamMessageAsync(playerId: string, playerToken: number, message: string, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_SEND_TEAM_MESSAGE_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_SEND_TEAM_MESSAGE_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1011,7 +1011,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1055,14 +1055,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       entity info (AppResponse), or an error if
      *                                                                       token consumption fails or there is an
      *                                                                       issue with the request.
      */
     async getEntityInfoAsync(playerId: string, playerToken: number, entityId: number, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_GET_ENTITY_INFO_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_GET_ENTITY_INFO_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1073,7 +1073,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1121,14 +1121,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       set entity value (AppResponse), or an
      *                                                                       error if token consumption fails or there
      *                                                                       is an issue with the request.
      */
     async setEntityValueAsync(playerId: string, playerToken: number, entityId: number, value: boolean,
         waitForReplenish: boolean = true, timeoutMs: number = RustPlus.REQUEST_SET_ENTITY_VALUE_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_SET_ENTITY_VALUE_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1141,7 +1141,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1185,14 +1185,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       check subscription (AppResponse), or an
      *                                                                       error if token consumption fails or there
      *                                                                       is an issue with the request.
      */
     async checkSubscriptionAsync(playerId: string, playerToken: number, entityId: number,
         waitForReplenish: boolean = true, timeoutMs: number = RustPlus.REQUEST_CHECK_SUBSCRIPTION_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_CHECK_SUBSCRIPTION_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1203,7 +1203,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1253,14 +1253,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       set subscription (AppResponse), or an
      *                                                                       error if token consumption fails or there
      *                                                                       is an issue with the request.
      */
     async setSubscriptionAsync(playerId: string, playerToken: number, entityId: number, value: boolean,
         waitForReplenish: boolean = true, timeoutMs: number = RustPlus.REQUEST_SET_SUBSCRIPTION_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_SET_SUBSCRIPTION_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1273,7 +1273,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1314,14 +1314,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       server map markers (AppResponse), or an
      *                                                                       error if token consumption fails or there
      *                                                                       is an issue with the request.
      */
     async getMapMarkersAsync(playerId: string, playerToken: number, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_GET_MAP_MARKERS_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_GET_MAP_MARKERS_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1331,7 +1331,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1376,14 +1376,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       promote to leader (AppResponse), or an
      *                                                                       error if token consumption fails or there
      *                                                                       is an issue with the request.
      */
     async promoteToLeaderAsync(playerId: string, playerToken: number, steamId: string, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_PROMOTE_TO_LEADER_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_PROMOTE_TO_LEADER_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1395,7 +1395,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1436,14 +1436,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       clan info (AppResponse), or an error if
      *                                                                       token consumption fails or there is an
      *                                                                       issue with the request.
      */
     async getClanInfoAsync(playerId: string, playerToken: number, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_GET_CLAN_INFO_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_GET_CLAN_INFO_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1453,7 +1453,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1498,14 +1498,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       set clan motd (AppResponse), or an error
      *                                                                       if token consumption fails or there is an
      *                                                                       issue with the request.
      */
     async setClanMotdAsync(playerId: string, playerToken: number, message: string, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_SET_CLAN_MOTD_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_SET_CLAN_MOTD_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1517,7 +1517,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1558,14 +1558,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       clan chat (AppResponse), or an error if
      *                                                                       token consumption fails or there is an
      *                                                                       issue with the request.
      */
     async getClanChatAsync(playerId: string, playerToken: number, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_GET_CLAN_CHAT_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_GET_CLAN_CHAT_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1575,7 +1575,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1620,14 +1620,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       send clan message (AppResponse), or an
      *                                                                       error if token consumption fails or there
      *                                                                       is an issue with the request.
      */
     async sendClanMessageAsync(playerId: string, playerToken: number, message: string, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_SEND_CLAN_MESSAGE_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_SEND_CLAN_MESSAGE_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1639,7 +1639,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1684,14 +1684,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       nexus authentication (AppResponse), or an
      *                                                                       error if token consumption fails or there
      *                                                                       is an issue with the request.
      */
     async getNexusAuthAsync(playerId: string, playerToken: number, appKey: string, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_GET_NEXUS_AUTH_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_GET_NEXUS_AUTH_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1703,7 +1703,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1748,14 +1748,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       camera subscribe (AppResponse), or an
      *                                                                       error if token consumption fails or there
      *                                                                       is an issue with the request.
      */
     async cameraSubscribeAsync(playerId: string, playerToken: number, identifier: string,
         waitForReplenish: boolean = true, timeoutMs: number = RustPlus.REQUEST_CAMERA_SUBSCRIBE_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_CAMERA_SUBSCRIBE_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1767,7 +1767,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1808,14 +1808,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       camera unsubscribe (AppResponse), or an
      *                                                                       error if token consumption fails or there
      *                                                                       is an issue with the request.
      */
     async cameraUnsubscribeAsync(playerId: string, playerToken: number, waitForReplenish: boolean = true,
         timeoutMs: number = RustPlus.REQUEST_CAMERA_UNSUBSCRIBE_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_CAMERA_UNSUBSCRIBE_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1825,7 +1825,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;
@@ -1880,14 +1880,14 @@ export class RustPlus extends EventEmitter {
      *                                            request.
      * @param {number} [timeoutMs=10000] - Time (in milliseconds) to wait for a response before timing out.
      *
-     * @returns {Promise<ConsumeTokensError | Error | rustplus.AppResponse>} Returns a promise that resolves to the
+     * @returns {Promise<ConsumeTokensError | Error | rpi.AppResponse>} Returns a promise that resolves to the
      *                                                                       camera input (AppResponse), or an error if
      *                                                                       token consumption fails or there is an
      *                                                                       issue with the request.
      */
     async cameraInputAsync(playerId: string, playerToken: number, buttons: number, x: number, y: number,
         waitForReplenish: boolean = true, timeoutMs: number = RustPlus.REQUEST_CAMERA_INPUT_TIMEOUT_MS):
-        Promise<rustplus.AppResponse | Error | ConsumeTokensError> {
+        Promise<rpi.AppResponse | Error | ConsumeTokensError> {
         const tokenCost = RustPlus.REQUEST_CAMERA_INPUT_TOKEN_COST;
         const result = await this.consumeTokens(playerId, tokenCost, waitForReplenish);
         if (result !== ConsumeTokensError.NoError) return result;
@@ -1903,7 +1903,7 @@ export class RustPlus extends EventEmitter {
         }, playerId, playerToken, timeoutMs);
 
         if (validation.isValidAppResponse(appResponse)) {
-            return appResponse as rustplus.AppResponse;
+            return appResponse as rpi.AppResponse;
         }
         else {
             return appResponse as Error;

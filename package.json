@@ -1,7 +1,7 @@
 {
     "name": "rustplus-ts",
     "version": "1.0.0",
-    "description": "API Wrapper for Rust+",
+    "description": "Rust+ API Wrapper written in TypeScript for the game Rust.",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "private": false,
@@ -25,6 +25,7 @@
         "rust",
         "rust+",
         "rustplus",
+        "rustplus-ts",
         "rustplus-api",
         "companion",
         "api",
@@ -38,6 +39,7 @@
     "dependencies": {
         "@protobuf-ts/plugin": "^2.9.4",
         "@types/ws": "^8.5.10",
+        "jimp": "^1.6.0",
         "ts-node": "^10.9.2",
         "typescript": "^5.4.3",
         "ws": "^8.16.0"
