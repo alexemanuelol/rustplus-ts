@@ -16,7 +16,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/alexemanuelol/rustplus-ts.git"
+        "url": "git+https://github.com/alexemanuelol/rustplus-ts.git"
     },
     "author": "Alexander Emanuelsson",
     "license": "SEE LICENSE IN LICENSE",
