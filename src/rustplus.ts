@@ -1213,7 +1213,6 @@ export class RustPlus extends EventEmitter {
     /**
      * Set the subscription status of an entity (Alarm) (callback version).
      * Consumes tokens and then sends a request to set the subscription status for an entity.
-     * TODO - What does it mean to be subscribed to an entity? I get broadcast notifications?
      *
      * @param {string} playerId - The steamId of the player making the request.
      * @param {number} playerToken - The authentication token of the player making the request.
@@ -1243,7 +1242,6 @@ export class RustPlus extends EventEmitter {
     /**
      * Set the subscription status of an entity (Alarm) (async version).
      * Consumes tokens and then sends a request to set the subscription status for an entity, returning a promise.
-     * TODO - What does it mean to be subscribed to an entity? I get broadcast notifications?
      *
      * @param {string} playerId - The steamId of the player making the request.
      * @param {number} playerToken - The authentication token of the player making the request.
