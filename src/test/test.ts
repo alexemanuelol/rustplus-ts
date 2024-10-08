@@ -73,13 +73,15 @@ async function run_test_functions() {
 
         printMessage = false;
         printRequest = false;
-        await test_callback_api_functions(rp);
-        await test_async_api_functions(rp);
-        await test_camera_module(rp);
+        //await test_callback_api_functions(rp);
+        //await test_async_api_functions(rp);
+        //await test_camera_module(rp);
         printMessage = true;
         printRequest = true;
 
-        rp.disconnect()
+        await rp.disconnect()
+        await delay(5000)
+        await rp.connect()
     });
 
     rp.on('message', async (appMessage: rustplus.AppMessage, handled: boolean) => {
@@ -99,10 +101,10 @@ async function run_test_functions() {
     });
 
     rp.on('error', async (errorType: rustplus.EmitErrorType, error: any) => {
-        console.log(`EVENT error: Type: ${errorType}, Error: ${error.message}`);
+        console.log(`EVENT error: Type: ${errorType}, Error: ${error.message}, Code: ${error.code}`);
     });
 
-    rp.connect()
+    await rp.connect()
 }
 
 async function test_callback_api_functions(rp: rustplus.RustPlus) {

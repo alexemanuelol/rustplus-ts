@@ -458,13 +458,15 @@ export class RustPlus extends EventEmitter {
      * Disconnect from the Rust Server and clear WebSocket variable.
      * @returns {boolean} True if successful, else false.
      */
-    disconnect(): boolean {
+    async disconnect(): Promise<boolean> {
         if (this.replenishInterval) {
             clearInterval(this.replenishInterval);
         }
 
         if (this.ws !== null) {
             this.ws.terminate();
+            await this.delay(100);
+            this.ws.removeAllListeners();
             this.ws = null;
             return true;
         }
